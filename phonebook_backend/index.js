@@ -2,8 +2,16 @@ const express = require('express')
 const morgan = require('morgan')
 const app = express()
 
+morgan.token('reqBody', function getData (req, res) { return JSON.stringify(req.body) })
+
 app.use(express.json())
-app.use(morgan('tiny'))
+app.use(morgan('tiny', {
+  skip: function (req, res) { return req.method == "POST" }
+}))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :reqBody', {
+  skip: function (req, res) { return req.method != "POST" }
+}))
+
 
 let persons = [
     {
